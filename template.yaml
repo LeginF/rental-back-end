@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  rental-back-end
+
+  Lambda functions and DynamoDB for rental application
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  RentalFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: rental/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        GetHealth:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: get
+        GetInventory:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /inventory
+            Method: get
+        CreateReservation:
+          Type: Api
+          Properties:
+            Path: /reservation
+            Method: post
+        UpdateReservation:
+          Type: Api
+          Properties:
+            Path: /reservation
+            Method: patch
+        GetCustomer:
+          Type: Api
+          Properties:
+            Path: /customer
+            Method: get
+        CreateCustomer:
+          Type: Api
+          Properties:
+            Path: /customer
+            Method: post
+        CreatePayment:
+          Type: Api
+          Properties:
+            Path: /payment
+            Method: post
+        GetPayment:
+          Type: Api
+          Properties:
+            Path: /payment
+            Method: get
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  RentalApi:
+    Description: "API Gateway endpoint URL for Prod stage for Rental function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/Rental/"
+  RentalFunction:
+    Description: "Rental Lambda Function ARN"
+    Value: !GetAtt RentalFunction.Arn
+  RentalFunctionIamRole:
+    Description: "Implicit IAM Role created for Rental function"
+    Value: !GetAtt RentalFunctionRole.Arn
