@@ -2,13 +2,12 @@ import json
 import logging
 import boto3
 from http import HTTPStatus, HTTPMethod
-import util
-import reservation
-import inventory
-import customer
-import health
-import reservation
-import payment
+from rental.util import *
+from rental.inventory import Inventory
+from rental.customer import Customer
+from rental.health import Health
+from rental.reservation import Reservation
+from rental.payment import Payment
 # import requests
 
 # set up logging
@@ -22,17 +21,22 @@ def lambda_handler(event, context):
     params = event['queryStringParameters']
 
     if "health" == path:
-        return health.handler(event, context, logger)
+        h = Health()
+        return h.handler(event, context, logger)
     elif "inventory" == path:
-        return inventory.handler(event, context, logger)
+        i = Inventory()
+        return i.handler(event, context, logger)
     elif "reservation" == path:
-        return reservation.handler(event, context, logger)
+        r = Reservation()
+        return r.handler(event, context, logger)
     elif "customer" == path:
-        return customer.handler(event, context, logger)
+        c = Customer()
+        return c.handler(event, context, logger)
     elif "payment" == path:
-        return payment.handler(event, context, logger)
+        p = Payment()
+        return p.handler(event, context, logger)
     else:
-        return util.buildResponse(HTTPStatus.NOT_FOUND)
+        return buildResponse(HTTPStatus.NOT_FOUND)
 
 
 

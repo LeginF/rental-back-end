@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from rental import util
 from rental import app
 
 

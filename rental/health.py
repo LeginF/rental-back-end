@@ -1,15 +1,16 @@
-import util
+from rental.util import *
 import boto3
 from http import HTTPStatus, HTTPMethod
+import pytest
 
-class health:
+class Health:
 
-    def handler(event, context, logger):
+    def handler(self, event, context, logger):
         if HTTPMethod.GET == event['httpMethod']:
-            return health.get()
+            return self.get()
         else:
-            return util.buildResponse(HTTPStatus.NOT_FOUND)
+            return buildResponse(HTTPStatus.NOT_FOUND)
 
-    def get():
-        return util.buildResponse(HTTPStatus.OK)
+    def get(self):
+        return buildResponse(HTTPStatus.OK)
     
